@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
+import { releaseExpiredReservations } from "@/lib/reservations";
 
 export async function GET(
   _request: Request,
   context: { params: Promise<{ id: string }> }
 ) {
   const { id } = await context.params;
+  await releaseExpiredReservations();
 
   try {
     const reservation = await prisma.reservation.findUnique({
