@@ -25,8 +25,8 @@ model Product {
 }
 
 model Warehouse {
-  id           String             @id @default(cuid())
-  name         String
+  id           String           @id @default(cuid())
+  name         String           @unique  
   location     String?
   createdAt    DateTime           @default(now())
   updatedAt    DateTime           @updatedAt

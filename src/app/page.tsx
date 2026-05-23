@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 type WarehouseStock = {
@@ -32,6 +34,7 @@ function makeKey(productId: string, warehouseId: string) {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [pageError, setPageError] = useState<string | null>(null);
@@ -94,6 +97,7 @@ export default function Home() {
         }
 
         const payload = (await response.json()) as ReservationResponse;
+        router.push(`/reservations/${payload.data.id}`);
         setSuccessByKey((prev) => ({
           ...prev,
           [key]: { id: payload.data.id, expiresAt: payload.data.expiresAt },
@@ -213,10 +217,18 @@ export default function Home() {
                     ) : null}
 
                     {success ? (
-                      <p className="mt-3 text-xs text-emerald-600">
-                        Reserved #{success.id.slice(0, 8)} until{" "}
-                        {new Date(success.expiresAt).toLocaleTimeString()}
-                      </p>
+                      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-emerald-600">
+                        <span>
+                          Reserved #{success.id.slice(0, 8)} until{" "}
+                          {new Date(success.expiresAt).toLocaleTimeString()}
+                        </span>
+                        <Link
+                          href={`/reservations/${success.id}`}
+                          className="font-semibold text-slate-700 hover:text-slate-900"
+                        >
+                          Continue to checkout
+                        </Link>
+                      </div>
                     ) : null}
                   </div>
                 );

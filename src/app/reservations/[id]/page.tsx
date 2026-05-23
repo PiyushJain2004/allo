@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 const REFRESH_INTERVAL_MS = 1000;
@@ -27,11 +28,9 @@ type ReservationDetails = {
   quantity: number;
 };
 
-export default function ReservationPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function ReservationPage() {
+  const params = useParams<{ id?: string }>();
+  const reservationId = typeof params?.id === "string" ? params.id : "";
   const [details, setDetails] = useState<ReservationDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,11 +40,17 @@ export default function ReservationPage({
   const [now, setNow] = useState(Date.now());
 
   const fetchDetails = useCallback(async () => {
+    if (!reservationId) {
+      setError("Reservation not found.");
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch(`/api/reservations/${params.id}`);
+      const response = await fetch(`/api/reservations/${reservationId}`);
       if (response.status === 404) {
         setError("Reservation not found.");
         return;
@@ -61,7 +66,7 @@ export default function ReservationPage({
     } finally {
       setLoading(false);
     }
-  }, [params.id]);
+  }, [reservationId]);
 
   useEffect(() => {
     void fetchDetails();
